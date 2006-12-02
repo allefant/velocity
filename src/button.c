@@ -69,7 +69,7 @@ static void draw(Widget *self)
     if (button->key)
     {
         land_text_pos(x + w / 2, self->box.y + (h - th) / 2);
-        
+
         land_print_center(scancode_to_name(controls[button->key]));
     }
     else

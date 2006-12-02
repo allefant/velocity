@@ -1,8 +1,9 @@
-/* - remove groups debug text
- * - remove weapon selection with F keys
- *
- * - sound
- * - music
+/* 
+ * One level is 76800 x 768 pixels big.
+ * One level has 12 waves, each one being 6400 pixels wide.
+ * The scroll speed is 100 pixel / second - so one wave takes 64 seconds.
+ * One level takes about 12 minutes (exact time would take into account the
+ * view width and time spent on bosses) 
  *
  * - level 1: river bank
  *   fly, flea, mosquito, wasp, water strider, beetle, leaf
@@ -19,6 +20,9 @@
  * - level 4: forest
  *   beetle, leaf, needles
  *   final boss: carnivorous plant
+ *
+ * - lit clouds at the floor, in several parallax layers
+ * - fog
  *
  * - try to split all textures to no more than 512x512
  */
@@ -100,7 +104,7 @@ void main_init(LandRunner *self)
 
     land_show_mouse_cursor();
     land_clear(0, 0, 0, 0);
-    
+
     LandDataFile *dat;
 
     char name[1024];

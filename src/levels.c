@@ -583,7 +583,7 @@ char const *waves[] =
     " D D      d oO  D       ",
     "   D      d   D DD      ",
     "D   D      D   D  D     ",
-    "  m D       D D  D      ",
+    "    Dm      D D  D      ",
     "   D D      D d   D     ",
     " D   D      D  D  D     ",
     "   D D      D OoD       ",

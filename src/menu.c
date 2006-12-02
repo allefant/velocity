@@ -14,7 +14,7 @@ extern int controls[6];
 
 static LandWidget *desktop, *old;
 static LandWidget *mainmenu, *controlsmenu, *optionsmenu, *videomenu,
-    *audiomenu;
+    *audiomenu, *startmenu;
 
 static float music_volume = 1;
 
@@ -28,7 +28,9 @@ static int set_control = 0;
 
 static int scrolling = 0;
 
-static Button *fullscreen_button, *music_button;
+static Button *fullscreen_button, *music_button, *start_option_button;
+
+static int start_option = 0;
 
 static float text_scoller_pos = 320;
 char const scroller_text[] =
@@ -133,12 +135,26 @@ LandRunner *run_game;
 static DUH *myduh;
 static AL_DUH_PLAYER *dumb;
 
-static void start(Button *self)
+static void set_start_options(void)
+{
+    if (start_option == 3)
+        game->playback_active = 2;
+    
+    if (start_option == 2)
+        game->recording_active = 1;
+        
+    if (start_option == 1)
+        game->playback_active = 1;
+}
+
+static void start_easy(Button *self)
 {
     land_runner_switch_active(run_game);
     game_begin(start_wave, 1);
     land_skip_frames();
     game_running = 1;
+    
+    set_start_options();
 }
 
 static void start_normal(Button *self)
@@ -147,6 +163,8 @@ static void start_normal(Button *self)
     game_begin(start_wave, 0);
     land_skip_frames();
     game_running = 1;
+    
+    set_start_options();
 }
 
 static void cont(Button *self)
@@ -163,6 +181,7 @@ static void quit(Button *self)
     land_quit();
 }
 
+static void start(Button *self) {desktop = startmenu;}
 static void video(Button *self) {desktop = videomenu;}
 static void audio(Button *self) {desktop = audiomenu;}
 static void backcontrols(Button *self) {desktop = controlsmenu;}
@@ -179,7 +198,21 @@ static void check_fullscreen(void)
         !!(land_display_get()->flags & LAND_FULLSCREEN));
 }
 
+static void check_startoption(void)
+{
+    free(start_option_button->text);
+    start_option_button->text = ustrdup(
+        start_option == 3 ? "Video" :
+        start_option == 2 ? "Record" :
+        start_option == 1 ? "Playback" : "");
+}
 
+static void startoption(Button *self)
+{
+    start_option++;
+    start_option %= 4;
+    check_startoption();
+}
 
 // HACK HACK HACK
 struct AL_DUH_PLAYER
@@ -244,10 +277,18 @@ void menu_init(LandRunner *self)
     mainmenu = widget_container_new(NULL, 0, 0, 640, 480);
     mainmenu->dont_clip = 1;
     button_new(mainmenu, 320, 180, "Continue", cont);
-    button_new(mainmenu, 320, 240, "Easy game", start);
-    button_new(mainmenu, 320, 300, "Normal game", start_normal);
+    button_new(mainmenu, 320, 240, "Start", start);
     button_new(mainmenu, 320, 360, "Options", backoptions);
     button_new(mainmenu, 320, 420, "Quit", quit);
+    
+    startmenu = widget_container_new(NULL, 0, 0, 640, 480);
+    startmenu->dont_clip = 1;
+    button_new(startmenu, 320, 180, "Easy game", start_easy);
+    button_new(startmenu, 320, 240, "Normal game", start_normal);
+    start_option_button = button_new(startmenu, 320, 300, "", startoption);
+    button_new(startmenu, 320, 360, "Back", backmain);
+    
+    check_startoption();
     
     optionsmenu = widget_container_new(NULL, 0, 0, 640, 480);
     optionsmenu->dont_clip = 1;
@@ -388,7 +429,7 @@ void menu_tick(LandRunner *self)
     {
         scrolling = 0;
     }
-
+    
     int i;
     if (cheat < 8)
     {
@@ -426,6 +467,18 @@ void menu_tick(LandRunner *self)
     if (!scrolling)
     {
         old = desktop;
+        int dx = 0;
+        if (land_key_pressed(KEY_LEFT)) dx -= 1;
+        if (land_key_pressed(KEY_RIGHT)) dx -= 1;
+        
+        if (desktop == startmenu)
+        {
+            start_option += dx;
+            start_option %= 4;
+            if (start_option < 0) start_option += 4;
+            check_startoption();
+        }
+
         if (land_key_pressed(KEY_UP)) move_hilite(-1);
         if (land_key_pressed(KEY_DOWN)) move_hilite(1);
         if (land_key_pressed(KEY_ENTER) || land_key_pressed(KEY_SPACE) ||
@@ -439,7 +492,8 @@ void menu_tick(LandRunner *self)
         if (land_key_pressed(KEY_ESC))
         {
             if (desktop == mainmenu) land_quit();
-            else if (desktop == optionsmenu) desktop = mainmenu;
+            else if (desktop == optionsmenu || desktop == startmenu)
+                desktop = mainmenu;
             else desktop = optionsmenu;
         }
         
@@ -452,7 +506,6 @@ void menu_tick(LandRunner *self)
                 scrolling = -640;
             else if (old == mainmenu) scrolling = -640;
             else if (old == controlsmenu) scrolling = 640;
-            else if (old == videomenu || old == audiomenu) scrolling = 640;
         }
     }
     else

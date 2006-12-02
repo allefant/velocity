@@ -1,7 +1,6 @@
 #ifdef _PROTOTYPE_
 
 #include <land.h>
-#include "main.h"
 #include "being.h"
 #include "background.h"
 #include "menu.h"
@@ -71,6 +70,12 @@ struct Game
 
     double fps, fps_accumulator, fps_time;
     double FPS;
+    
+    int playback_active, playback_pos, playback_allocated;
+    char *playback;
+    
+    int recording_active, recording_pos, recording_allocated;
+    char *recording;
 };
 
 typedef struct Sound Sound;
@@ -83,9 +88,9 @@ struct Sound
         *hit, /* enemy is hit, p1 */
         *gov, /* player down, p255 */
         *tat, /* power up, p192 */
-        *sht, /* wasp/hornet bullet, 64 */
-        *cin, /* mosquito bullet, 64 */
-        *boi; /* flea jump, 128 */
+        *sht, /* wasp/hornet bullet, p64 */
+        *cin, /* mosquito bullet, p64 */
+        *boi; /* flea jump, p128 */
 };
 
 extern Sound *sound;
@@ -107,6 +112,8 @@ static int message_time = 0;
 
 static int waves_count = 12;
 static int wave_length = 100;
+
+static LandImage *capture_frame;
 
 struct MEMFILE
 {
@@ -529,7 +536,15 @@ static void handle_input(void)
 {
     if (land_closebutton()) land_quit();
     if (land_key_pressed(KEY_ESC))
+    {
+        if (game->recording_active)
+        {
+            PACKFILE *pf = pack_fopen("recording", "wb");
+            pack_fwrite(game->recording, game->recording_pos, pf);
+            pack_fclose(pf);
+        }
         land_runner_switch_active(shortcut_runner);
+    }
 
     game->kx = 0;
     game->ky = 0;
@@ -547,11 +562,54 @@ static void handle_input(void)
         return;
     }
 
-    if (land_key(controls[1])) game->kx -= 1;
-    if (land_key(controls[2])) game->kx += 1;
-    if (land_key(controls[3])) game->ky -= 1;
-    if (land_key(controls[4])) game->ky += 1;
-    if (land_key(controls[5])) game->kf = 1;
+    if (game->playback_active)
+    {
+        if (game->playback_pos == 0)
+        {
+            game->playback_allocated = file_size("recording");
+            game->playback = malloc(game->playback_allocated);
+            PACKFILE *pf = pack_fopen("recording", "rb");
+            if (pf)
+            {
+                pack_fread(game->playback, game->playback_allocated, pf);
+                pack_fclose(pf);
+            }
+        }
+        if (game->playback_pos < game->playback_allocated)
+        {
+
+            int k = game->playback[game->playback_pos++];
+            if (k & 1) game->kx -= 1;
+            if (k & 2) game->kx += 1;
+            if (k & 4) game->ky -= 1;
+            if (k & 8) game->ky += 1;
+            if (k & 16) game->kf = 1;
+        }
+    }
+    else
+    {
+        if (land_key(controls[1])) game->kx -= 1;
+        if (land_key(controls[2])) game->kx += 1;
+        if (land_key(controls[3])) game->ky -= 1;
+        if (land_key(controls[4])) game->ky += 1;
+        if (land_key(controls[5])) game->kf = 1;
+    }
+
+    if (game->recording_active)
+    {
+        int k = 0;
+        if (game->kx < 0) k |= 1;
+        if (game->kx > 0) k |= 2;
+        if (game->ky < 0) k |= 4;
+        if (game->ky > 0) k |= 8;
+        if (game->kf) k |= 16;
+        if (game->recording_pos >= game->recording_allocated)
+        {
+            game->recording_allocated += 1024 * 1024;
+            game->recording = realloc(game->recording, game->recording_allocated);
+        }
+        game->recording[game->recording_pos++] = k;
+    }
 
     if (game->kx > 1) game->kx = 1;
     if (game->kx < -1) game->kx = -1;
@@ -671,6 +729,24 @@ void game_tick(LandRunner *self)
     {
         land_tilegrid_place(game->back_layer3->grid, i, 0,
             game->water ? land_array_get_nth(backdrop2, j) : backearth);
+    }
+    
+    if (game->playback_active == 2)
+    {
+        if (!capture_frame)
+        {
+            capture_frame = land_image_new(640, 480);
+        }
+        if ((game->playback_pos & 3) == 0)
+        {
+            game_draw(self);
+            land_image_grab(capture_frame, 0, 0);
+            char str[256];
+            uszprintf(str, sizeof(str), "frames/frame%05d.tga", game->playback_pos / 4);
+            land_image_allegrogl_cache(capture_frame);
+            save_bitmap(str, capture_frame->memory_cache, NULL);
+            land_skip_frames();
+        }
     }
     
     game->frame++;
