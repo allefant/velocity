@@ -17,13 +17,11 @@ static def tick(Being *self):
 
 
 def star_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/star_*.png", 1, 0)), NULL)
+    type = being_type_new("data/star_*.png")
 
 Being * def star_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer2->grid)
-    float r = land_rnd(0, AL_PI * 2)
+    float r = land_rnd(0, LAND_PI * 2)
     self->velx = sin(r) * 3 + 2
     self->vely = cos(r) * 3
     x += land_rnd(-1, 1)

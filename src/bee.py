@@ -24,7 +24,7 @@ static def tick(Being *self):
     
     if game->wind:
         if game->frame % (int)game->FPS < 20:
-            float a = AL_PI * game->frame / (game->FPS * 2)
+            float a = LAND_PI * game->frame / (game->FPS * 2)
             self->velx += 0.15 * cos(a) - 0.08
             self->vely += 0.15 * sin(a) + 0.08
 
@@ -125,7 +125,7 @@ static def tick(Being *self):
     if overlappers:
         int solid = 0
         LandListItem *item
-        for item = overlappers->first; item; item = item->next:
+        for item = overlappers->first while item with item = item->next:
             int got_hit = 0
             Being *collider = item->data
             if collider->bt == BT_HONEY:
@@ -231,13 +231,11 @@ static def draw(LandSprite *self, LandView *view):
     if being->shield:
         land_image_draw_rotated(land_animation_get_frame(shield_anim,
             (being->frame / 8) & 7), x, y,
-            being->frame * AL_PI / 100)
+            being->frame * LAND_PI / 100)
 
 
 def bee_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/bee_*.png", 1, 0)), NULL)
+    type = being_type_new("data/bee_*.png");
     shield_anim = land_animation_new(land_load_images("data/shield_*", 1, 0))
     orig_draw = type->draw
     type->draw = draw

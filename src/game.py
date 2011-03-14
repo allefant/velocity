@@ -1,4 +1,4 @@
-import global land
+import global land.land
 import being
 import menu
 
@@ -73,7 +73,7 @@ class Game:
     char *recording
 
 class Sound:
-    SAMPLE *sho,\ # player bullet, p0 
+    LandSound *sho,\ # player bullet, p0 
         *blu,\ # strider bullet, p128 
         *bom,\ # enemy down, p128 
         *aye,\ # player hit, p255 
@@ -108,59 +108,60 @@ class MEMFILE:
 
 static macro M MEMFILE *m = (void *)userdata
 
-static int def pf_fclose(void *userdata):
-    return 0;
+#static int def pf_fclose(void *userdata):
+#    return 0;
 
-static int def pf_getc(void *userdata):
-    M
-    if m->pos < m->size:
-        return m->mem[m->pos++]
-    return EOF
+#static int def pf_getc(void *userdata):
+#    M
+#    if m->pos < m->size:
+#        return m->mem[m->pos++]
+#    return EOF
 
-static int def pf_ungetc(int c, void *userdata):
-    return c
+#static int def pf_ungetc(int c, void *userdata):
+#    return c
 
-static long def pf_fread(void *p, long n, void *userdata):
-    M
-    n = MIN(n, m->size - m->pos)
-    if n > 0:
-        memcpy(p, m->mem + m->pos, n)
-        m->pos += n
+#static long def pf_fread(void *p, long n, void *userdata):
+#    M
+#    n = min(n, m->size - m->pos)
+#    if n > 0:
+#        memcpy(p, m->mem + m->pos, n)
+#        m->pos += n
 
-    else:
-        n = 0
-    return n
+#    else:
+#        n = 0
+#    return n
 
-static int def pf_putc(int c, void *userdata):
-    return 0
-static long def pf_fwrite(const void *p, long n, void *userdata):
-    return 0
-static int def pf_fseek(void *userdata, int offset): M; m->pos += offset:
-    return 0
-static int def pf_feof(void *userdata):
-    M
-    return m->pos >= m->size
-static int def pf_ferror(void *userdata):
-    return 0;
+#static int def pf_putc(int c, void *userdata):
+#    return 0
+#static long def pf_fwrite(const void *p, long n, void *userdata):
+#    return 0
+#static int def pf_fseek(void *userdata, int offset): M; m->pos += offset:
+#    return 0
+#static int def pf_feof(void *userdata):
+#    M
+#    return m->pos >= m->size
+#static int def pf_ferror(void *userdata):
+#    return 0;
 
-static PACKFILE_VTABLE vtable = {
-    pf_fclose, pf_getc, pf_ungetc, pf_fread, pf_putc, pf_fwrite, pf_fseek,
-    pf_feof, pf_ferror}
+#static PACKFILE_VTABLE vtable = {
+#    pf_fclose, pf_getc, pf_ungetc, pf_fread, pf_putc, pf_fwrite, pf_fseek,
+#    pf_feof, pf_ferror}
 
-static SAMPLE * def sample(char const *name):
-    MEMFILE mem
-    land_log_message("land_sound_load %s..", name)
-    mem.mem = land_datafile_read_entry(land_get_datafile(), name, &mem.size)
-    mem.pos = 0
-    SAMPLE *sam = NULL
-    PACKFILE *pf = pack_fopen_vtable(&vtable, &mem)
-    sam = load_wav_pf(pf)
-    if not sam:
-        sam = load_sample(name)
+static LandSound *def sample(char const *name):
+    #MEMFILE mem
+    #land_log_message("land_sound_load %s..", name)
+    #mem.mem = land_datafile_read_entry(land_get_datafile(), name, &mem.size)
+    #mem.pos = 0
+    LandSound *sam = None
+    #PACKFILE *pf = pack_fopen_vtable(&vtable, &mem)
+    #sam = load_wav_pf(pf)
+    # if not sam:
+    #    sam = load_sample(name)
 
-    else:
-        land_log_message_nostamp(" [memory %d] ", mem.size)
-    land_log_message_nostamp(sam ? "success.\n" : "failure.\n")
+    # else:
+    #    land_log_message_nostamp(" [memory %d] ", mem.size)
+    #land_log_message_nostamp(sam ? "success.\n" : "failure.\n")
+    sam = land_sound_load(name)
     return sam
 
 static def load():
@@ -170,22 +171,22 @@ static def load():
     once++
     
     land_alloc(sound)
-    sound->sho = sample("data/sho.wav")
-    sound->blu = sample("data/blu.wav")
-    sound->bom = sample("data/bom.wav")
-    sound->aye = sample("data/aye.wav")
-    sound->hit = sample("data/hit.wav")
-    sound->gov = sample("data/gov.wav")
-    sound->tat = sample("data/tat.wav")
-    sound->sht = sample("data/sht.wav")
-    sound->cin = sample("data/cin.wav")
-    sound->boi = sample("data/boi.wav")
+    sound->sho = sample("data/sound/sho.ogg")
+    sound->blu = sample("data/sound/blu.ogg")
+    sound->bom = sample("data/sound/bom.ogg")
+    sound->aye = sample("data/sound/aye.ogg")
+    sound->hit = sample("data/sound/hit.ogg")
+    sound->gov = sample("data/sound/gov.ogg")
+    sound->tat = sample("data/sound/tat.ogg")
+    sound->sht = sample("data/sound/sht.ogg")
+    sound->cin = sample("data/sound/cin.ogg")
+    sound->boi = sample("data/sound/boi.ogg")
 
     backdrop = land_image_load_split_sheet("data/background.jpg",
         0, 0, 512, 512, 0, 0, 8, 1, 0)
-    for i = 0; i < 8; i++:
+    for i = 0 while i < 8 with i++:
         char name[256]
-        uszprintf(name, sizeof name, "data/backgrass_%02d.png", 1 + i)
+        snprintf(name, sizeof name, "data/backgrass_%02d.png", 1 + i)
         backgrass[i] = land_image_load_split_sheet(name,
             0, 0, 256, 256, 0, 0, 8, 1, 0)
 
@@ -264,14 +265,14 @@ def game_begin(int wave, int easy):
         land_display_height())
 
     int i
-    for i = 0; i < wave_length * waves_count * 64; i += land_rand(64, 512):
+    for i = 0 while i < wave_length * waves_count * 64 with i += land_rand(64, 512):
         grass_new(i, h - 80)
 
     land_layer_set_scroll_speed(game->front_layer, 1.4, 1)
     
     float f = (512 - 480.0) / (h - 480.0)
     land_layer_set_scroll_speed(game->back_layer, f, f)
-    for i = 0; i < game->back_layer->grid->x_cells; i++:
+    for i = 0 while i < game->back_layer->grid->x_cells with i++:
         land_tilegrid_place(game->back_layer->grid, i, 0,
             land_array_get_nth(backdrop, (i + 7) & 7))
 
@@ -334,7 +335,7 @@ static def spawn():
     # Handle spawning of new enemies. 
     if game->view->scroll_x >= game->last_pos + 64:
         int l = game->last_pos / 64
-        for i = 0; i < 24; i++:
+        for i = 0 while i < 24 with i++:
             Being *b = NULL
             if waves[l][i] == 'F':
                 int y = i * 32
@@ -464,11 +465,12 @@ static def spawn():
 
 static def handle_input():
     if land_closebutton(): land_quit()
-    if land_key_pressed(KEY_ESC):
+    if land_key_pressed(LandKeyEscape):
         if game->recording_active:
-            PACKFILE *pf = pack_fopen("recording", "wb")
-            pack_fwrite(game->recording, game->recording_pos, pf)
-            pack_fclose(pf)
+            #PACKFILE *pf = pack_fopen("recording", "wb")
+            #pack_fwrite(game->recording, game->recording_pos, pf)
+            #pack_fclose(pf)
+            pass
 
         land_runner_switch_active(shortcut_runner)
 
@@ -486,12 +488,13 @@ static def handle_input():
 
     if game->playback_active:
         if game->playback_pos == 0:
-            game->playback_allocated = file_size_ex("recording")
-            game->playback = malloc(game->playback_allocated)
-            PACKFILE *pf = pack_fopen("recording", "rb")
-            if pf:
-                pack_fread(game->playback, game->playback_allocated, pf)
-                pack_fclose(pf)
+            pass
+            # game->playback_allocated = file_size_ex("recording")
+            # game->playback = malloc(game->playback_allocated)
+            #PACKFILE *pf = pack_fopen("recording", "rb")
+            # if pf:
+            #    pack_fread(game->playback, game->playback_allocated, pf)
+            #    pack_fclose(pf)
 
 
         if game->playback_pos < game->playback_allocated:
@@ -551,7 +554,7 @@ def game_tick(LandRunner *self):
     # Move all beings in the game, including the player. 
     if game->beings:
         LandListItem *item, *next
-        for item = game->beings->first; item; item = next:
+        for item = game->beings->first while item with item = next:
             next = item->next
             Being *being = item->data
             being->tick(being)
@@ -562,7 +565,7 @@ def game_tick(LandRunner *self):
         # immediately - probably could just check at the next tick as
         # well.
         #
-        for item = game->beings->first; item; item = next:
+        for item = game->beings->first while item with item = next:
             next = item->next
             Being *being = item->data
             if being->dead:
@@ -599,7 +602,7 @@ def game_tick(LandRunner *self):
         game->front_layer->grid, x, y, x + 640, y + 480)
     if backlist:
         LandListItem *item
-        for item = backlist->first; item; item = item->next:
+        for item = backlist->first while item with item = item->next:
             Being *back = item->data
             back->tick(back)
 
@@ -612,13 +615,13 @@ def game_tick(LandRunner *self):
     int j = (game->frame / 8) & 7
     int i1 = x1 / game->back_layer2->grid->cell_w
     int i2 = x2 / game->back_layer2->grid->cell_w
-    for i = i1; i <= i2; i++:
+    for i = i1 while i <= i2 with i++:
         land_tilegrid_place(game->back_layer2->grid, i, 0,
             land_array_get_nth(backgrass[j], i & 7))
 
     # Ground 
     j = (game->frame / 4) & 15
-    for i = 0; i < game->back_layer3->grid->x_cells; i++:
+    for i = 0 while i < game->back_layer3->grid->x_cells with i++:
         land_tilegrid_place(game->back_layer3->grid, i, 0,
             game->water ? land_array_get_nth(backdrop2, j) : backearth)
 
@@ -630,10 +633,10 @@ def game_tick(LandRunner *self):
             game_draw(self)
             land_image_grab(capture_frame, 0, 0)
             char str[256]
-            uszprintf(str, sizeof(str), "frames/frame%05d.tga", game->playback_pos / 4)
-            land_image_allegrogl_cache(capture_frame)
-            save_bitmap(str, capture_frame->memory_cache, NULL)
-            land_skip_frames()
+            snprintf(str, sizeof(str), "frames/frame%05d.tga", game->playback_pos / 4)
+            # land_image_allegrogl_cache(capture_frame)
+            # save_bitmap(str, capture_frame->memory_cache, NULL)
+            # land_skip_frames()
 
 
     game->frame++
@@ -647,7 +650,7 @@ def game_draw(LandRunner *self):
     # Draw reflections over water. 
     if game->water:
         LandLayer *layers[] = {game->middle_layer, game->middle_layer2}
-        for i = 0; i < 2; i++:
+        for i = 0 while i < 2 with i++:
             LandList *list
             list = land_sprites_grid_get_in_view(layers[i]->grid,
                 game->view, 0, 0, 0, 0)
@@ -656,13 +659,13 @@ def game_draw(LandRunner *self):
                 land_clip_push()
                 land_clip(0, waterline, 640, 480)
                 LandListItem *item
-                for item = list->first; item; item = item->next:
+                for item = list->first while item with item = item->next:
                     LandSprite *sprite = item->data
                     float vx = sprite->x - game->view->scroll_x
                     float vy = sprite->y - game->view->scroll_y
                     
                     float y = waterline - vy
-                    float a = (game->frame % (int)game->FPS) * AL_PI * 2 /\
+                    float a = (game->frame % (int)game->FPS) * LAND_PI * 2 /\
                         game->FPS
                     y = waterline + y
                     if y < vy + 32: y = vy + 32
@@ -680,8 +683,6 @@ def game_draw(LandRunner *self):
 
                 land_clip_pop()
                 land_list_destroy(list)
-
-
 
     if game->player->dead:
         if game->game_over > 60:
@@ -717,9 +718,9 @@ def game_draw(LandRunner *self):
         int lines_count = 0
         char const *ptr = message
         int n = 0
-        for i = 0; i < (int)strlen(message); i++:
+        for i = 0 while i < (int)strlen(message) with i++:
             if message[i] == '\\':
-                ustrzncpy(lines[lines_count], sizeof(lines), ptr, n)
+                strncpy(lines[lines_count], ptr, 256)
                 ptr += n + 1
                 n = 0
                 lines_count++
@@ -727,14 +728,14 @@ def game_draw(LandRunner *self):
             else:
                 n++
 
-        ustrzncpy(lines[lines_count], sizeof(lines), ptr, n)
+        strncpy(lines[lines_count], ptr, 256)
         lines_count++
         float a = message_time / 360.0
-        a = sin(AL_PI * a)
+        a = sin(LAND_PI * a)
         int th = land_text_height()
         land_text_pos(320, 200 - th * lines_count / 2)
         land_color(1, 1, 1, a)
-        for i = 0; i < lines_count; i++:
+        for i = 0 while i < lines_count with i++:
             land_print_center(lines[i])
 
     land_font_set(tinyfont)
@@ -743,7 +744,7 @@ def game_draw(LandRunner *self):
     land_print("FPS: %.1f", game->fps)
     
     # land_text_pos(0, 80)
-    # for i = 1; i < 10; i++:
+    # for i = 1 while i < 10 with i++:
     # {
     #     land_print("%d: %d %d+%d/%d", i, game->group_active[i],
     #         game->group_out[i], game->group_hit[i], game->group_count[i])
@@ -757,10 +758,10 @@ def game_draw(LandRunner *self):
     # Draw lifes and pots. 
     LandImage *beepic = land_animation_get_frame(LAND_SPRITE_TYPE_ANIMATION(
         LAND_SPRITE(game->player)->type)->animation, 0)
-    for i = 0; i < game->player->lifes; i++:
+    for i = 0 while i < game->player->lifes with i++:
         land_image_draw_scaled(beepic, 640 - 16 - i * 32, 16, 0.5, 0.5)
 
-    for i = 0; i < game->player->pots; i++:
+    for i = 0 while i < game->player->pots with i++:
         land_image_draw_scaled(honeypot_frame(0), 640 - 16 - i * 32,
             16 + 32, 0.5, 0.5)
 
@@ -773,7 +774,7 @@ def game_draw(LandRunner *self):
             game->view, 0, 0, 0, 0)
         if list:
             LandListItem *item
-            for item = list->first; item; item = item->next:
+            for item = list->first while item with item = item->next:
                 boss = item->data
                 if boss->bt == BT_HORNET:
                     lifes = boss->lifes
@@ -785,7 +786,7 @@ def game_draw(LandRunner *self):
         if lifes:
             land_clip_push()
             land_clip(0, 0, lifes, 480)
-            for i = 0; i < 640; i += 10:
+            for i = 0 while i < 640 with i += 10:
                 land_color(1 - i / 640.0, i / 640.0, 0, 0.6)
                 land_filled_circle(i, 470, i + 10, 480)
 
@@ -801,7 +802,7 @@ def game_draw(LandRunner *self):
             game->view->scroll_x * game->view->w / w,
             game->view->h)
     
-        for i = 1; i < 12; i++:
+        for i = 1 while i < 12 with i++:
             float x = i * game->view->w / 12
             land_line(x, game->view->h - 6, x, game->view->h)
 

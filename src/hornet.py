@@ -17,7 +17,7 @@ static def evil_shot(Being *self):
     dy /= d
     nectar->velx = dx * 3
     nectar->vely = dy * 3
-    LAND_SPRITE(nectar)->angle = atan2(dx, dy) + AL_PI / 2
+    LAND_SPRITE(nectar)->angle = atan2(dx, dy) + LAND_PI / 2
 
 static def tick(Being *self):
     LandSprite *sprite = LAND_SPRITE(self)
@@ -117,11 +117,11 @@ static def tick(Being *self):
 
             break
         case 8, 18: # spawn wasp 
-                Being *b = wasp_new(sprite->x, sprite->y)
+            Being *b = wasp_new(sprite->x, sprite->y)
             
-                b->group = 9
-                game->group_active[9] = 1
-                game->group_count[9]++
+            b->group = 9
+            game->group_active[9] = 1
+            game->group_count[9]++
 
             angle = 0
             self->state++
@@ -138,11 +138,11 @@ static def tick(Being *self):
             else:
                 dx /= d
                 dy /= d
-                if angle > AL_PI / 4 && angle < 3 * AL_PI / 4:
-                    if sprite->angle > -AL_PI / 8: sprite->angle -= 0.002
+                if angle > LAND_PI / 4 && angle < 3 * LAND_PI / 4:
+                    if sprite->angle > -LAND_PI / 8: sprite->angle -= 0.002
 
-                elif  angle > 5 * AL_PI / 4 && angle < 7 * AL_PI / 4:
-                    if sprite->angle < AL_PI / 8: sprite->angle += 0.002
+                elif  angle > 5 * LAND_PI / 4 && angle < 7 * LAND_PI / 4:
+                    if sprite->angle < LAND_PI / 8: sprite->angle += 0.002
 
                 if self->state == 9 || self->state == 19:
                     being_move(self, dx, dy)
@@ -153,7 +153,7 @@ static def tick(Being *self):
                 elif  self->state == 24:
                     being_move(self, dx * 4, dy * 4)
                 
-                if angle >= AL_PI * 2:
+                if angle >= LAND_PI * 2:
                     evil_shot(self)
                     angle = 0
                     if self->state == 24:
@@ -197,7 +197,7 @@ static def tick(Being *self):
     LandList *overlappers = being_collision(self)
     if overlappers:
         LandListItem *item
-        for item = overlappers->first; item; item = item->next:
+        for item = overlappers->first while item with item = item->next:
             Being *collider = item->data
             if collider->bt == BT_HONEY:
                 being_hit(self, collider)
@@ -208,9 +208,7 @@ static def tick(Being *self):
 
 
 def hornet_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/hornet_*.png", 1, 0)), NULL)
+    type = being_type_new("data/hornet_*.png")
 
 Being * def hornet_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer->grid)

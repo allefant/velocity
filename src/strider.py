@@ -92,7 +92,7 @@ static def tick(Being *self):
                     drop->velx = dx * t_ + vx
                     drop->vely = dy * t_ + vy
                     LAND_SPRITE(drop)->angle =\
-                        atan2(drop->velx, drop->vely) + AL_PI / 2
+                        atan2(drop->velx, drop->vely) + LAND_PI / 2
                     self->reload_ticker += 60
 
 
@@ -101,7 +101,7 @@ static def tick(Being *self):
     LandList *overlappers = being_collision(self)
     if overlappers:
         LandListItem *item
-        for item = overlappers->first; item; item = item->next:
+        for item = overlappers->first while item with item = item->next:
             Being *collider = item->data
             if collider->bt == BT_HONEY:
                 being_hit(self, collider)
@@ -112,9 +112,7 @@ static def tick(Being *self):
 
 
 def strider_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/strider_*.png", 1, 0)), NULL)
+    type = being_type_new("data/strider_*.png")
 
 Being * def strider_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer->grid)

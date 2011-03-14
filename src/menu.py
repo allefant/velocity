@@ -1,10 +1,9 @@
-import global land
-
-import global aldumb
+import global land/land
 
 import menu
 import button
 import game
+import velocity
 
 LandWidget *desktop, *old
 LandWidget *mainmenu, *controlsmenu, *optionsmenu, *videomenu, *audiomenu,\
@@ -14,7 +13,7 @@ float music_volume = 1
 
 int cheat = 0
 int start_wave = 0
-int cheatcode[] = {KEY_V, KEY_E, KEY_L, KEY_O, KEY_C, KEY_I, KEY_T, KEY_Y}
+int cheatcode[] = {'v', 'e', 'l', 'o', 'c', 'i', 't', 'y'};
 
 static int game_running = 0
 
@@ -126,8 +125,8 @@ char const *control_names[] = {"None", "Left", "Right", "Up", "Down", "Fire"}
 
 LandRunner *run_game
 
-DUH *myduh
-AL_DUH_PLAYER *dumb
+#DUH *myduh
+#AL_DUH_PLAYER *dumb
 
 static def set_start_options():
     if start_option == 3:
@@ -180,15 +179,15 @@ static def control(Button *self):
     set_control = self->key
 static def check_fullscreen():
     free(fullscreen_button->text)
-    fullscreen_button->text = ustrdup(
+    fullscreen_button->text = land_strdup(
         (land_display_get()->flags & LAND_FULLSCREEN) ?
         "Windowed" : "Fullscreen")
-    set_config_int("video", "fullscreen",
+    land_ini_set_int(ini, "video", "fullscreen",
         !!(land_display_get()->flags & LAND_FULLSCREEN))
 
 static def check_startoption():
     free(start_option_button->text)
-    start_option_button->text = ustrdup(
+    start_option_button->text = land_strdup(
         start_option == 3 ? "Video" :
         start_option == 2 ? "Record" :
         start_option == 1 ? "Playback" : "")
@@ -199,24 +198,24 @@ static def startoption(Button *self):
     check_startoption()
 
 #  HACK HACK HACK
-class AL_DUH_PLAYER:
-    int flags
-    long bufsize
-    int freq
-    AUDIOSTREAM *stream
-    DUH_SIGRENDERER *sigrenderer
-    float volume
-    int silentcount
+#class AL_DUH_PLAYER:
+#    int flags
+#    long bufsize
+#    int freq
+#    AUDIOSTREAM *stream
+#    DUH_SIGRENDERER *sigrenderer
+#    float volume
+#    int silentcount
 
-static def blah():
-    al_poll_duh(dumb)
+#static def blah():
+#    al_poll_duh(dumb)
 
-static def playdumb():
-    remove_int(blah)
-    if dumb: al_stop_duh(dumb)
-    dumb = al_start_duh(myduh, music_volume, 0, (double)2, 4096, 48000)
-    voice_set_volume(dumb->stream->voice, 180)
-    install_int_ex(blah, BPS_TO_TIMER(100))
+#static def playdumb():
+#    remove_int(blah)
+#    if dumb: al_stop_duh(dumb)
+#    dumb = al_start_duh(myduh, music_volume, 0, (double)2, 4096, 48000)
+#    voice_set_volume(dumb->stream->voice, 180)
+#    install_int_ex(blah, BPS_TO_TIMER(100))
 
 #  HACK HACK HACK
 
@@ -226,17 +225,17 @@ static def fullscreen(Button *self):
     land_show_mouse_cursor()
     check_fullscreen()
 
-    playdumb()
+    #playdumb()
 
 static def check_music():
-    free(music_button->text)
-    music_button->text = ustrdup(
+    land_free(music_button->text)
+    music_button->text = land_strdup(
         music_on ?
         "Music Off" : "Music On")
-    set_config_int("audio", "music", music_on)
+    land_ini_set_int(ini, "audio", "music", music_on)
 
-    if not music_on: al_pause_duh(dumb)
-    else al_resume_duh(dumb)
+    # if not music_on: al_pause_duh(dumb)
+    # else al_resume_duh(dumb)
 
 static def music(Button *self):
     music_on ^= 1
@@ -245,11 +244,11 @@ static def music(Button *self):
 def menu_init(LandRunner *self):
     Button *b
 
-    controls[1] = get_config_int("controls", control_names[1], KEY_LEFT)
-    controls[2] = get_config_int("controls", control_names[2], KEY_RIGHT)
-    controls[3] = get_config_int("controls", control_names[3], KEY_UP)
-    controls[4] = get_config_int("controls", control_names[4], KEY_DOWN)
-    controls[5] = get_config_int("controls", control_names[5], KEY_RCONTROL)
+    controls[1] = land_ini_get_int(ini, "controls", control_names[1], LandKeyLeft)
+    controls[2] = land_ini_get_int(ini, "controls", control_names[2], LandKeyRight)
+    controls[3] = land_ini_get_int(ini, "controls", control_names[3], LandKeyUp)
+    controls[4] = land_ini_get_int(ini, "controls", control_names[4], LandKeyDown)
+    controls[5] = land_ini_get_int(ini, "controls", control_names[5], LandKeyRightControl)
 
     mainmenu = land_widget_container_new(NULL, 0, 0, 640, 480)
     mainmenu->dont_clip = 1
@@ -302,33 +301,33 @@ def menu_init(LandRunner *self):
     
     menufont = land_font_load("data/beefont.png", 1)
     
-    install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL)
+    #install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL)
 
-    int size
-    char *mem = land_datafile_read_entry(land_get_datafile(), "data/beesong.xm", &size)
-    if mem:
-        DUMBFILE *df = dumbfile_open_memory(mem, size)
-        if df:
-            myduh = dumb_read_xm(df)
+    #int size
+    #char *mem = land_datafile_read_entry(land_get_datafile(), "data/beesong.xm", &size)
+    # if mem:
+    #    DUMBFILE *df = dumbfile_open_memory(mem, size)
+    #    if df:
+    #        myduh = dumb_read_xm(df)
 
 
-    if not myduh:
-        myduh = dumb_load_xm_quick("data/beesong.xm")
+    # if not myduh:
+    #    myduh = dumb_load_xm_quick("data/beesong.xm")
 
-    music_on = get_config_int("audio", "music", 1)
+    music_on = land_ini_get_int(ini, "audio", "music", 1)
 
-    playdumb()
+    #playdumb()
 
     check_music()
-    install_int_ex(blah, BPS_TO_TIMER(100))
+    # install_int_ex(blah, BPS_TO_TIMER(100))
     check_fullscreen()
     
     old = desktop = mainmenu
 
 static def move_hilite(int dir):
     LandListItem *i
-    play_sample(sound->sho, 190, 128, 800, 0)
-    for i = LAND_WIDGET_CONTAINER(desktop)->children->first; i; i = i->next:
+    land_sound_play(sound->sho, 0.75, 0, 0.8)
+    for i = LAND_WIDGET_CONTAINER(desktop)->children->first while i with i = i->next:
         if BUTTON(i->data)->hilite:
             BUTTON(i->data)->hilite = 0
             if dir == -1:
@@ -354,7 +353,7 @@ static def move_hilite(int dir):
 
 static def activate():
     LandListItem *i
-    for i = LAND_WIDGET_CONTAINER(desktop)->children->first; i; i = i->next:
+    for i = LAND_WIDGET_CONTAINER(desktop)->children->first while i with i = i->next:
         if BUTTON(i->data)->hilite:
             BUTTON(i->data)->cb(i->data)
             return
@@ -367,31 +366,31 @@ def menu_tick(LandRunner *self):
     text_scoller_pos += 2
 
     if set_control:
-        if land_key_pressed(KEY_ESC):
+        if land_key_pressed(LandKeyEscape):
             set_control = 0
             return
 
         int k
-        for k = 1; k < KEY_MAX; k++:
+        for k = 1 while k < LandKeysCount with k++:
             if land_key_pressed(k):
                 controls[set_control] = k
-                set_config_int("controls", control_names[set_control], k)
+                land_ini_set_int(ini, "controls", control_names[set_control], k)
                 set_control = 0
 
 
         return
 
-    if land_key_pressed(KEY_ESC):
+    if land_key_pressed(LandKeyEscape):
         scrolling = 0
 
     int i
     if cheat < 8:
-        for i = 1; i < KEY_MAX; i++:
+        for i = 1 while i < LandKeysCount with i++:
             if land_key_pressed(i):
                 if cheatcode[cheat] == i:
                     cheat++
                     if cheat == 8:
-                        play_sample(sound->tat, 255, 128, 1000, 0)
+                        land_sound_play(sound->tat, 1, 0, 1)
 
 
                 else:
@@ -400,22 +399,15 @@ def menu_tick(LandRunner *self):
 
 
     else:
-        if land_key_pressed(KEY_1): start_wave = 2
-        if land_key_pressed(KEY_2): start_wave = 3
-        if land_key_pressed(KEY_3): start_wave = 4
-        if land_key_pressed(KEY_4): start_wave = 5
-        if land_key_pressed(KEY_5): start_wave = 6
-        if land_key_pressed(KEY_6): start_wave = 7
-        if land_key_pressed(KEY_7): start_wave = 8
-        if land_key_pressed(KEY_8): start_wave = 9
-        if land_key_pressed(KEY_9): start_wave = 10
-        if land_key_pressed(KEY_0): start_wave = 11
+        for int wi = 0 while wi < 9 with wi++:
+            if land_key_pressed('1' + wi): start_wave = 2 + wi
+        if land_key_pressed('0'): start_wave = 11
 
     if not scrolling:
         old = desktop
         int dx = 0
-        if land_key_pressed(KEY_LEFT): dx -= 1
-        if land_key_pressed(KEY_RIGHT): dx -= 1
+        if land_key_pressed(LandKeyLeft): dx -= 1
+        if land_key_pressed(LandKeyRight): dx -= 1
         
         if desktop == startmenu:
             start_option += dx
@@ -423,29 +415,29 @@ def menu_tick(LandRunner *self):
             if start_option < 0: start_option += 4
             check_startoption()
 
-        if land_key_pressed(KEY_UP): move_hilite(-1)
-        if land_key_pressed(KEY_DOWN): move_hilite(1)
-        if land_key_pressed(KEY_ENTER) or land_key_pressed(KEY_SPACE) or\
+        if land_key_pressed(LandKeyUp): move_hilite(-1)
+        if land_key_pressed(LandKeyDown): move_hilite(1)
+        if land_key_pressed(LandKeyEnter) or land_key_pressed(' ') or\
             land_key_pressed(controls[5]):
             activate()
 
         desktop->vt->mouse_tick(desktop)
         
-        if land_key_pressed(KEY_ESC):
+        if land_key_pressed(LandKeyEscape):
             if desktop == mainmenu: land_quit()
             elif  desktop == optionsmenu || desktop == startmenu:
                 desktop = mainmenu
             else desktop = optionsmenu
 
         if old != desktop:
-            play_sample(sound->bom, 255, 128, 1000, 0)
+            land_sound_play(sound->bom, 1, 0, 1)
             if desktop == mainmenu: scrolling = 640
             elif  desktop == controlsmenu: scrolling = -640
-            elif  desktop == videomenu || desktop == audiomenu:
+            elif  desktop == videomenu or desktop == audiomenu:
                 scrolling = -640
             elif  old == mainmenu: scrolling = -640
-            elif  old == controlsmenu: scrolling = 640
-
+            elif  old == controlsmenu or old == videomenu or old == audiomenu:
+                scrolling = 640
 
     else:
         if scrolling > 0: scrolling -= 20
@@ -456,7 +448,7 @@ static def draw_controls():
     int th = land_font_height(menufont)
     int i
     land_color(0, 0, 0, 0.5)
-    for i = 1; i < 6; i++:
+    for i = 1 while i < 6 with i++:
         land_text_pos(0, button_scroll + i * 60 - th / 2)
         land_print(control_names[i])
 
@@ -481,7 +473,7 @@ static def draw_text_scroller():
         float y = 90 + function(x)
         if x > -32:
             int ri, gi, bi
-            hsv_to_rgb(i * 10, 1, 1, &ri, &gi, &bi)
+            # hsv_to_rgb(i * 10, 1, 1, &ri, &gi, &bi)
             float alpha = 1 - fabs(x - 320) / 320.0
             land_color(ri / 255.0, gi / 255.0, bi / 255.0, alpha)
             char str[16]
@@ -489,10 +481,11 @@ static def draw_text_scroller():
                 text_scoller_pos = 0
                 i = 0
 
-            ustrzncpy(str, sizeof(str), scroller_text + i, 1)
+            str[0] = scroller_text[i]
+            str[1] = 0
             glPushMatrix()
             glTranslatef(x, y, 0)
-            glRotatef(-180 * a / AL_PI + 180, 0, 0, 1)
+            glRotatef(-180 * a / LAND_PI + 180, 0, 0, 1)
             land_text_pos(0, -32)
             land_print_center(str)
             glPopMatrix()
@@ -502,7 +495,7 @@ static def draw_text_scroller():
 
 
 static float def s(float x):
-    return 640 - 640 * sin((640 - x) * AL_PI / 2 / 640)
+    return 640 - 640 * sin((640 - x) * LAND_PI / 2 / 640)
 
 def menu_draw(LandRunner *self):
     land_font_set(menufont)

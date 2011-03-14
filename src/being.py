@@ -36,20 +36,20 @@ class Being:
     int lifes
     int worth
     
-    unsigned int pots : 2
+    unsigned int pots with 2
     
-    unsigned int forward_shot : 2
-    unsigned int down_shot : 2
-    unsigned int triple_shot : 2
-    unsigned int back_shot : 2
-    unsigned int shield : 2
+    unsigned int forward_shot with 2
+    unsigned int down_shot with 2
+    unsigned int triple_shot with 2
+    unsigned int back_shot with 2
+    unsigned int shield with 2
 
     int state
-    unsigned int falling : 1
-    unsigned int dead : 1
-    unsigned int flipped : 1
-    unsigned int cannon1 : 1
-    unsigned int cannon2 : 1
+    unsigned int falling with 1
+    unsigned int dead with 1
+    unsigned int flipped with 1
+    unsigned int cannon1 with 1
+    unsigned int cannon2 with 1
 
     int group
     int spawn_time
@@ -63,7 +63,7 @@ Being * def being_new(void (*tick)(Being *),
     LandSpriteType *type, LandGrid *grid):
     Being *self
     land_alloc(self)
-    land_sprite_animated_initialize(LAND_SPRITE_ANIMATED(self), type)
+    land_sprite_animated_initialize(LAND_SPRITE(self), type)
     self->tick = tick
     self->grid = grid
     self->lifes = 1
@@ -71,25 +71,24 @@ Being * def being_new(void (*tick)(Being *),
     land_add_list_data(&game->beings, self)
     return self
 
-def being_sound(Being *self, SAMPLE *sample, float vol, float frequency):
+def being_sound(Being *self, LandSound *sample, float vol, float frequency):
     float d = LAND_SPRITE(self)->x - LAND_SPRITE(game->player)->x
-    int pan = 128 + d
-    if pan < 0: pan = 0
-    if pan > 255: pan = 255
+    float pan = d / 128.0
+    if pan < -1: pan = -1
+    if pan > 1: pan = 1
     d = 255 + 50 - fabs(d) / 5
-    int v = d
+    float v = d / 255.0
     if v <= 0: return
-    if v > 255: v = 255
-    v *= vol
-    int voice = play_sample(sample, v, pan, 1000 * frequency, 0)
-    if voice >= 0:
-        int p = 128
-        if sample == sound->sho: p = 0
-        if sample == sound->hit: p = 1
-        if sample == sound->sht || sample == sound->cin: p = 64
-        if sample == sound->tat: p = 192
-        if sample == sound->aye || sample == sound->gov: p = 255
-        voice_set_priority(voice, p)
+    if v > 1: v = 1
+    land_sound_play(sample, v, pan, frequency)
+    # if voice >= 0:
+    #    int p = 128
+    #    if sample == sound->sho: p = 0
+    #    if sample == sound->hit: p = 1
+    #    if sample == sound->sht || sample == sound->cin: p = 64
+    #    if sample == sound->tat: p = 192
+    #    if sample == sound->aye || sample == sound->gov: p = 255
+    #    voice_set_priority(voice, p)
 
 
 def being_place(Being *self, float x, float y):
@@ -125,7 +124,7 @@ def being_hit(Being *self, Being *collider):
         self->falling = 1
         if collider:
             int i
-            for i = 0; i < 8; i++:
+            for i = 0 while i < 8 with i++:
                 star_new(LAND_SPRITE(collider)->x, LAND_SPRITE(collider)->y)
 
 
@@ -143,8 +142,6 @@ def being_destroy(Being *self):
                 game->group_count[self->group] = 0
                 game->group_hit[self->group] = 0
                 game->group_out[self->group] = 0
-
-
 
     land_sprite_remove_from_grid(LAND_SPRITE(self),
         self->grid)
@@ -181,3 +178,8 @@ int def being_outside(Being *self):
 def being_flip(Being *self):
     self->flipped = !self->flipped
     LAND_SPRITE_ANIMATED(self)->sx = (self->flipped * -2) + 1
+
+LandSpriteType *def being_type_new(char const *pattern):
+    return land_spritetype_animation_new(
+        land_animation_new(
+            land_load_images(pattern, True, 0)), None, True, 1)

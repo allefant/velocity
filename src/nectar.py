@@ -14,7 +14,7 @@ static def tick(Being *self):
     LandList *overlappers = being_collision(self)
     if overlappers:
         LandListItem *item
-        for item = overlappers->first; item; item = item->next:
+        for item = overlappers->first while item with item = item->next:
             Being *collider = item->data
             if collider->bt == BT_HONEY:
                 game->score += 10
@@ -25,9 +25,7 @@ static def tick(Being *self):
         land_list_destroy(overlappers)
 
 def nectar_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/nectar_*.png", 1, 0)), NULL)
+    type = being_type_new("data/nectar_*.png")
 
 Being * def nectar_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer->grid)

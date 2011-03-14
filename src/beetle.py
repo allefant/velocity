@@ -27,7 +27,7 @@ static def tick(Being *self):
     LandList *overlappers = being_collision(self)
     if overlappers:
         LandListItem *item
-        for item = overlappers->first; item; item = item->next:
+        for item = overlappers->first while item with item = item->next:
             Being *collider = item->data
             if collider->bt == BT_HONEY:
                 being_hit(self, collider)
@@ -38,9 +38,7 @@ static def tick(Being *self):
 
 
 def beetle_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/beetle_*.png", 1, 0)), NULL)
+    type = being_type_new("data/beetle_*.png")
 
 Being * def beetle_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer->grid)

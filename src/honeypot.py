@@ -15,9 +15,7 @@ static def tick(Being *self):
         self->dead = 1
 
 def honeypot_init():
-    type = land_spritetype_animation_new(
-        land_animation_new(
-        land_load_images("data/honeypot_*.png", 1, 0)), NULL)
+    type = being_type_new("data/honeypot_*.png")
 
 Being * def honeypot_new(float x, float y):
     Being *self = being_new(tick, type, game->middle_layer->grid)

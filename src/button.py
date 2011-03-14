@@ -1,4 +1,4 @@
-import global land
+import global land/land
 
 class Button:
     LandWidget super
@@ -25,14 +25,14 @@ static def mouse(LandWidget *self):
         if button->cb: button->cb(button)
 
 
-static def enter(LandWidget *self, LandWidget *focus):
+static def enter(LandWidget *self):
     LandListItem *i
-    play_sample(sound->sho, 190, 128, 800, 0)
-    for i = LAND_WIDGET_CONTAINER(self->parent)->children->first; i; i = i->next:
+    land_sound_play(sound->sho, 0.75, 0, 0.8)
+    for i = LAND_WIDGET_CONTAINER(self->parent)->children->first while i with i = i->next:
         BUTTON(i->data)->hilite = 0
     BUTTON(self)->hilite = 1
 
-static def leave(LandWidget *self, LandWidget *focus):
+static def leave(LandWidget *self):
     BUTTON(self)->hilite = 0
 
 static def draw(LandWidget *self):
@@ -52,18 +52,21 @@ static def draw(LandWidget *self):
 
     if button->key:
         land_text_pos(x + w / 2, self->box.y + (h - th) / 2)
-
-        land_print_center(scancode_to_name(controls[button->key]))
+        char const *keyname = land_key_name(controls[button->key])
+        land_print_center(keyname)
 
     else:
         land_text_pos(x + w / 2, self->box.y + (h - th) / 2)
         land_print_center(BUTTON(self)->text)
 
+    #land_color(0, 1, 1, 1)
+    #land_rectangle(x, self->box.y, x + w, self->box.y + h)
+
 
 static def initialize():
     button_image = land_image_load("data/button.png")
     land_alloc(interface)
-    interface->name = "button"
+    interface->name = land_strdup("button")
     interface->draw = draw
     interface->mouse_tick = mouse
     interface->mouse_enter = enter
@@ -81,6 +84,6 @@ Button *def button_new(LandWidget *parent, int x, y, char const *text,
 
     self->super.dont_clip = 1
     self->super.vt = interface
-    self->text = ustrdup(text)
+    self->text = land_strdup(text)
     self->cb = cb
     return self
