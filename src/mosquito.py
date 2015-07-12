@@ -65,14 +65,14 @@ static def tick(Being *self):
                 break
 
 
-    if self->frame > 100 && being_outside(self):
+    if self->frame > 100 and being_outside(self):
         self->dead = 1
 
     if self->reload_ticker > 0:
         self->reload_ticker --
         
     # Don't shoot at very screen edge. 
-    if self->reload_ticker <= 0 && sprite->x > game->view->scroll_x + 32:
+    if self->reload_ticker <= 0 and sprite->x > game->view->scroll_x + 32:
         being_sound(self, sound->cin, 0.8, 1)
         float dx = LAND_SPRITE(game->player)->x - sprite->x
         float dy = LAND_SPRITE(game->player)->y - sprite->y

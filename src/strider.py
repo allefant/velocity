@@ -69,7 +69,7 @@ static def tick(Being *self):
     
     float dx = LAND_SPRITE(game->player)->x - (sprite->x - 30)
     float dy = LAND_SPRITE(game->player)->y - (sprite->y - 10)
-    if (dx < 0 && !self->flipped) || (dx > 0 && self->flipped):
+    if (dx < 0 and not self->flipped) or (dx > 0 and self->flipped):
         if self->reload_ticker <= 0:
             self->reload_ticker = 20
             float vx = 1
@@ -83,7 +83,7 @@ static def tick(Being *self):
             if D >= 0:
                 float s1 = (sqrt(D) - B) / (2 * A)
                 float s2 = (-sqrt(D) - B) / (2 * A)
-                if s1 > 0 || s2 > 0:
+                if s1 > 0 or s2 > 0:
                     being_sound(self, sound->blu, 1, 1)
                     float t_ = s1
                     if t_ < s2: t_ = s2 # Take solution in future. 

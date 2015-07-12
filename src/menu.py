@@ -183,7 +183,7 @@ static def check_fullscreen():
         (land_display_get()->flags & LAND_FULLSCREEN) ?
         "Windowed" : "Fullscreen")
     land_ini_set_int(ini, "video", "fullscreen",
-        !!(land_display_get()->flags & LAND_FULLSCREEN))
+        not not (land_display_get()->flags & LAND_FULLSCREEN))
 
 static def check_startoption():
     free(start_option_button->text)
@@ -425,9 +425,9 @@ def menu_tick(LandRunner *self):
         
         if land_key_pressed(LandKeyEscape):
             if desktop == mainmenu: land_quit()
-            elif  desktop == optionsmenu || desktop == startmenu:
+            elif  desktop == optionsmenu or desktop == startmenu:
                 desktop = mainmenu
-            else desktop = optionsmenu
+            else: desktop = optionsmenu
 
         if old != desktop:
             land_sound_play(sound->bom, 1, 0, 1)
@@ -473,9 +473,9 @@ static def draw_text_scroller():
         float y = 90 + function(x)
         if x > -32:
             int ri, gi, bi
-            # hsv_to_rgb(i * 10, 1, 1, &ri, &gi, &bi)
-            float alpha = 1 - fabs(x - 320) / 320.0
-            land_color(ri / 255.0, gi / 255.0, bi / 255.0, alpha)
+            LandColor c = land_color_hsv(i * 10, 1, 1)
+            c.a = 1 - fabs(x - 320) / 320.0
+            land_color_set(c)
             char str[16]
             if scroller_text[i] == '\0':
                 text_scoller_pos = 0

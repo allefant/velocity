@@ -138,13 +138,13 @@ static def tick(Being *self):
             else:
                 dx /= d
                 dy /= d
-                if angle > LAND_PI / 4 && angle < 3 * LAND_PI / 4:
+                if angle > LAND_PI / 4 and angle < 3 * LAND_PI / 4:
                     if sprite->angle > -LAND_PI / 8: sprite->angle -= 0.002
 
-                elif  angle > 5 * LAND_PI / 4 && angle < 7 * LAND_PI / 4:
+                elif  angle > 5 * LAND_PI / 4 and angle < 7 * LAND_PI / 4:
                     if sprite->angle < LAND_PI / 8: sprite->angle += 0.002
 
-                if self->state == 9 || self->state == 19:
+                if self->state == 9 or self->state == 19:
                     being_move(self, dx, dy)
                 elif  self->state == 22:
                     being_move(self, dx * 2, dy * 2)
@@ -162,7 +162,7 @@ static def tick(Being *self):
 
                     else:
                         self->state++
-                        if self->lifes < 111 && self->state < 22:
+                        if self->lifes < 111 and self->state < 22:
                             self->state = 22
 
 

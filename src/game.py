@@ -305,7 +305,7 @@ static def honey():
 
 def respawn():
     int wave = game->checkpoint
-    if wave == game->start_wave && wave > 0:
+    if wave == game->start_wave and wave > 0:
         wave--
         
     int ns = game->next_life_score
@@ -446,11 +446,11 @@ static def spawn():
                 game->wind = 0
 
             elif  waves[l][i] == '0':
-                if waves[l][i + 1] >= '1' && waves[l][i+1] <= '9':
+                if waves[l][i + 1] >= '1' and waves[l][i+1] <= '9':
                     game->group_active[waves[l][i + 1] - '0'] = 1
 
 
-            if b && waves[l][i + 1] >= '1' && waves[l][i + 1] <= '9':
+            if b and waves[l][i + 1] >= '1' and waves[l][i + 1] <= '9':
                 b->group = waves[l][i + 1] - '0'
                 game->group_count[b->group]++
 
@@ -478,11 +478,11 @@ static def handle_input():
     game->ky = 0
     game->kf = 0
     
-    if land_key_pressed(controls[5]) && game->game_over:
+    if land_key_pressed(controls[5]) and game->game_over:
         respawn()
         return
 
-    if land_key_pressed(controls[5]) && game->won:
+    if land_key_pressed(controls[5]) and game->won:
         land_runner_switch_active(shortcut_runner)
         return
 
@@ -698,7 +698,7 @@ def game_draw(LandRunner *self):
         land_text_pos(320, 280)
         land_color(0.5, 0, 0, 0.9)
         int wave = game->last_pos / 6400
-        if wave == game->start_wave && wave > 0: wave--
+        if wave == game->start_wave and wave > 0: wave--
         land_print_center("Press Fire")
         land_print_center("to restart in wave %d", 1 + wave)
 
@@ -713,7 +713,7 @@ def game_draw(LandRunner *self):
         land_color(1, 1, 0, 1)
         land_print_center("The End")
 
-    if message && message_time < 360:
+    if message and message_time < 360:
         char lines[16][256]
         int lines_count = 0
         char const *ptr = message

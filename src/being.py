@@ -63,7 +63,8 @@ Being * def being_new(void (*tick)(Being *),
     LandSpriteType *type, LandGrid *grid):
     Being *self
     land_alloc(self)
-    land_sprite_animated_initialize(LAND_SPRITE(self), type)
+    land_sprite_animated_initialize(LAND_SPRITE(self))
+    self.super.super.type = type
     self->tick = tick
     self->grid = grid
     self->lifes = 1
@@ -85,9 +86,9 @@ def being_sound(Being *self, LandSound *sample, float vol, float frequency):
     #    int p = 128
     #    if sample == sound->sho: p = 0
     #    if sample == sound->hit: p = 1
-    #    if sample == sound->sht || sample == sound->cin: p = 64
+    #    if sample == sound->sht or sample == sound->cin: p = 64
     #    if sample == sound->tat: p = 192
-    #    if sample == sound->aye || sample == sound->gov: p = 255
+    #    if sample == sound->aye or sample == sound->gov: p = 255
     #    voice_set_priority(voice, p)
 
 
@@ -166,7 +167,7 @@ int def being_outside_border(Being *self, int border):
     t += game->view->scroll_y + game->view->y
     r += game->view->scroll_x + game->view->x + game->view->w
     b += game->view->scroll_y + game->view->y + game->view->h
-    if sprite->x < l || sprite->y < t || sprite->x > r || sprite->y > b:
+    if sprite->x < l or sprite->y < t or sprite->x > r or sprite->y > b:
         return 1
     return 0
 
@@ -176,7 +177,7 @@ int def being_outside(Being *self):
     return being_outside_border(self, 32)
 
 def being_flip(Being *self):
-    self->flipped = !self->flipped
+    self->flipped = not self->flipped
     LAND_SPRITE_ANIMATED(self)->sx = (self->flipped * -2) + 1
 
 LandSpriteType *def being_type_new(char const *pattern):

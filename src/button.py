@@ -21,7 +21,7 @@ static LandImage *button_image
 
 static def mouse(LandWidget *self):
     Button *button = BUTTON(self)
-    if (land_mouse_delta_b() & 1)  && !(land_mouse_b() & 1):
+    if (land_mouse_delta_b() & 1)  and not (land_mouse_b() & 1):
         if button->cb: button->cb(button)
 
 

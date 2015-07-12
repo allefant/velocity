@@ -67,9 +67,9 @@ static def tick(Being *self):
                 float d = sqrt(dx * dx + dy * dy)
                 dx /= d
                 dy /= d
-                if dy < 0 && sprite->y < game->view->scroll_y + 240:
+                if dy < 0 and sprite->y < game->view->scroll_y + 240:
                     dy = 0
-                if dy > 0 && sprite->y > game->view->scroll_y + 240:
+                if dy > 0 and sprite->y > game->view->scroll_y + 240:
                     dy = 0
                 being_move(self, -dx * 2, - dy * 2)
                 being_move(collider, dx * 2, dy * 2)

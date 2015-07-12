@@ -9,7 +9,7 @@ static def tick(Being *self):
 
     being_move(self, self->velx, self->vely)
     self->vely += self->acc
-    if not (sprite->y < game->view->scroll_y + 1 && self->acc > 0):
+    if not (sprite->y < game->view->scroll_y + 1 and self->acc > 0):
         if being_outside_border(self, 32):
             self->dead = 1
 
